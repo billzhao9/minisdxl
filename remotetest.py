@@ -23,12 +23,11 @@ headers = {
 
 data = {
     "command": "txt2img",
-    #"prompt": "Astronaut in a jungle, cold color palette, muted colors, detailed, 8k",
-    #"prompt": "Create an image that portrays a super-powered dog with extraordinary abilities, showcasing its heroic stature and dynamic presence, colorful",
-    "prompt": "A super cat with orange eyes wearing a black hoodie, it is inside a supercomputer with schematics and quantum computing elements. The cat is wearing a black hoodie. The color of the  and robert hughes the angel, 4k digital art, trending on artstation, award-winning, art by Greg Rutkowski, by Studio Ghibli",
+    "prompt": "a panda",
     "num_images_per_prompt": 1,
     "num_inference_steps": 15,
     "guidance_scale": 9,
+    "loras": [["https://civitai.com/models/124016/sdxl-chalk-dust-style"]],
     "grid": False
 }
 date_string = now.strftime("%Y-%m-%d_%H-%M-%S")
