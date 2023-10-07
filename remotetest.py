@@ -27,7 +27,7 @@ data = {
     "num_images_per_prompt": 1,
     "num_inference_steps": 15,
     "guidance_scale": 9,
-    "loras": [["https://civitai.com/models/124016/sdxl-chalk-dust-style"]],
+    #"loras": [["https://civitai.com/models/145479/three-starmound"]],
     "grid": False
 }
 date_string = now.strftime("%Y-%m-%d_%H-%M-%S")
