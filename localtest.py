@@ -21,7 +21,8 @@ data = {
     #"prompt": "Astronaut in a jungle, cold color palette, muted colors, detailed, 8k",
     #"prompt": "A lion in galaxies, spirals, nebulae, stars, smoke, iridescent, intricate detail, octane render, 8k",
     #"prompt":"Generate a vivid and captivating image of a super-powered dog with extraordinary abilities, showcasing its heroic stature, sleek physique, and dynamic energy in an awe-inspiring setting.",
-    "prompt": "a panda girl",
+    "prompt": "A lion in galaxies, spirals, nebulae, stars, smoke, iridescent, intricate detail, octane render, 8k,ikea",
+    #"prompt": "a comfortable chair with a tv set",
     "num_images_per_prompt": 1,
     "num_inference_steps": 15,
     "guidance_scale": 9,
@@ -31,9 +32,11 @@ data = {
     #"lora": ["https://civitai.com/models/124016/sdxl-chalk-dust-style"],
     #"lora": ["ostris/ikea-instructions-lora-sdxl","ikea_instructions_xl_v1_5.safetensors"],
     #"loras": [["nerijs/pixel-art-xl","pixel-art-xl.safetensors"],["ostris/ikea-instructions-lora-sdxl","ikea_instructions_xl_v1_5.safetensors"]],
+    #"loras": [["https://civitai.com/models/124016/sdxl-chalk-dust-style"]],
     #"loras": [["https://civitai.com/models/119157/sdxl-dragon-style"],["https://civitai.com/models/124016/sdxl-chalk-dust-style"]],
-    "loras": [["https://civitai.com/models/118992/salvador-dali-sdxl-10-art-style-lora"]],
-    #"loras": [["https://civitai.com/models/145479/three-starmound"]],
+    #"loras": [["https://civitai.com/models/118992/salvador-dali-sdxl-10-art-style-lora"]],
+    "loras": [["https://civitai.com/models/145479/three-starmound"]],
+    "lora_scale":0.9,
     #"embedding_id": "style-empire.pt"
 }
 date_string = now.strftime("%Y-%m-%d_%H-%M-%S")

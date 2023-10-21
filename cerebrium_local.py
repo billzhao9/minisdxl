@@ -14,7 +14,7 @@ import time
 
 app = FastAPI()
 logger = logging.basicConfig(level=logging.INFO)
-
+logger = logging.getLogger(__name__)
 # Define the predict endpoint
 @app.post("/predict")
 def predict_route(input_data: dict):
