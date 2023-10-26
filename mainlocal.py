@@ -60,11 +60,12 @@ class Item(BaseModel):
 
 
 cache_dir = "/persistent-storage/"
-init_model_id = "stabilityai/stable-diffusion-xl-base-1.0"
+init_model_id = "segmind/SSD-1B"
+#init_model_id = "stabilityai/stable-diffusion-xl-base-1.0"
 HF_AUTH_TOKEN = "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"
 device = "cuda" if torch.cuda.is_available() else "cpu"
 lora_dir = "/persistent-storage/sdxl/lora/"
-serialmodel_path1 = rf"{cache_dir}saved/sdxl/base/"
+serialmodel_path1 = rf"{cache_dir}saved/ssd1b/base/"
 os.makedirs(serialmodel_path1, exist_ok=True)
 prev_lora = None
 prev_loras = []
@@ -74,6 +75,7 @@ kept_lora_keyword = ""
 
 from tensorizer.utils import no_init_or_tensor
 from tensorizer import TensorDeserializer, TensorSerializer, stream_io, utils
+from free_lunch_utils import register_free_upblock2d, register_free_crossattn_upblock2d
 
 def serialize_model(
     model: torch.nn.Module,
@@ -277,7 +279,7 @@ def init_model():
     
     global base
     base = StableDiffusionXLPipeline.from_pretrained(
-        "stabilityai/stable-diffusion-xl-base-1.0", torch_dtype=torch.float16, variant="fp16", use_safetensors=True, use_auth_token=HF_AUTH_TOKEN,cache_dir=cache_dir
+        init_model_id, torch_dtype=torch.float16, variant="fp16", use_safetensors=True, use_auth_token=HF_AUTH_TOKEN,cache_dir=cache_dir
     )
     base.to(device)
 
@@ -319,32 +321,36 @@ def start():
         del base
         gc.collect()
 
+    if os.path.exists(filename):
+        #vae = load_model(serialmodel_path1, AutoencoderKL, None, "vae", device)
+        vae = AutoencoderKL.from_pretrained("madebyollin/sdxl-vae-fp16-fix", torch_dtype=torch.float16, cache_dir=cache_dir)
+        unet = load_model(serialmodel_path1, UNet2DConditionModel, None, "unet", device)
+        encoder = load_model(serialmodel_path1, CLIPTextModel, CLIPTextConfig, "encoder", device)
+        encoder_2 = load_model(serialmodel_path1, CLIPTextModelWithProjection, CLIPTextConfig, "encoder_2", device)
 
-    #vae = load_model(serialmodel_path1, AutoencoderKL, None, "vae", device)
-    vae = AutoencoderKL.from_pretrained("madebyollin/sdxl-vae-fp16-fix", torch_dtype=torch.float16, cache_dir=cache_dir)
-    unet = load_model(serialmodel_path1, UNet2DConditionModel, None, "unet", device)
-    encoder = load_model(serialmodel_path1, CLIPTextModel, CLIPTextConfig, "encoder", device)
-    encoder_2 = load_model(serialmodel_path1, CLIPTextModelWithProjection, CLIPTextConfig, "encoder_2", device)
+        base = StableDiffusionXLPipeline(
+                text_encoder = encoder,
+                text_encoder_2 = encoder_2,
+                vae=vae,
+                unet=unet,
+                tokenizer=CLIPTokenizer.from_pretrained(
+                    init_model_id,subfolder="tokenizer",cache_dir=cache_dir
+                ),
+                tokenizer_2=CLIPTokenizer.from_pretrained(
+                    init_model_id,subfolder="tokenizer_2",cache_dir=cache_dir
+                ),
+                scheduler=DDIMScheduler.from_pretrained(
+                    init_model_id,subfolder="scheduler",cache_dir=cache_dir
+                ),
+            ).to(device)
+        global end_load
+        end_load = time.time() - starttime
+        print(f"loading the model took {end_load} seconds",  file=sys.stderr)
 
-    base = SDXLLongPromptWeightingPipeline(
-            text_encoder = encoder,
-            text_encoder_2 = encoder_2,
-            vae=vae,
-            unet=unet,
-            tokenizer=CLIPTokenizer.from_pretrained(
-                init_model_id,subfolder="tokenizer",cache_dir=cache_dir
-            ),
-            tokenizer_2=CLIPTokenizer.from_pretrained(
-                init_model_id,subfolder="tokenizer_2",cache_dir=cache_dir
-            ),
-            scheduler=DDIMScheduler.from_pretrained(
-                init_model_id,subfolder="scheduler",cache_dir=cache_dir
-            ),
-        ).to(device)
-    global end_load
-    end_load = time.time() - starttime
-
-    print(f"loading the model took {end_load} seconds",  file=sys.stderr)
+    # -------- freeu block registration
+    register_free_upblock2d(base, b1=1.3, b2=1.4, s1=0.9, s2=0.2)
+    register_free_crossattn_upblock2d(base, b1=1.3, b2=1.4, s1=0.9, s2=0.2)
+    # -------- freeu block registration
     base.enable_xformers_memory_efficient_attention()
     base.enable_attention_slicing()
 
